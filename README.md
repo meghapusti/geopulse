@@ -59,7 +59,7 @@ Scheduled RSS + GDELT pulls every 15 minutes. Raw articles normalised into a com
 
 ```bash
 # Clone and setup
-git clone <repo>
+git clone github.com/meghapusti/geopulse
 cd geopulse
 
 # Backend
