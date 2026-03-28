@@ -12,6 +12,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+import requests
 import structlog
 import yfinance as yf
 
@@ -46,9 +47,15 @@ class MarketDataIngestor:
         """
         snapshot: dict = {"timestamp": datetime.now(timezone.utc).isoformat()}
 
+        session = requests.Session()
+        session.headers.update({
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                          "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        })
+
         for ticker, name in TICKERS.items():
             try:
-                data = yf.download(ticker, period="5d", interval="1h", progress=False, auto_adjust=True)
+                data = yf.download(ticker, period="5d", interval="1h", progress=False, auto_adjust=True, session=session)
                 if data.empty:
                     log.warning("No market data", ticker=ticker)
                     continue
