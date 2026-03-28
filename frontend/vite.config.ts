@@ -12,8 +12,14 @@ export default defineConfig({
       },
     },
   },
+  optimizeDeps: {
+    exclude: ['three'],
+  },
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      external: [],
+    },
   },
 })
