@@ -24,7 +24,7 @@ sentence-transformers==3.0.0   # SBERT for clustering
 spacy==3.7.4
 # After install: python -m spacy download en_core_web_sm
 onnxruntime==1.18.0            # quantized model inference (fast CPU)
-optimum==1.19.2                # HuggingFace → ONNX export helper
+optimum==1.21.4               # HuggingFace → ONNX export helper
 
 # ── Clustering ────────────────────────────────────────────────
 hdbscan==0.8.33
