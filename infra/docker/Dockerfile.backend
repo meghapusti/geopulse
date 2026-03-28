@@ -2,7 +2,8 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# System dependencies for psycopg2, lxml, hdbscan
+# Noninteractive apt install
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     gcc g++ \
     libpq-dev \
@@ -23,8 +24,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Download spaCy model
 RUN python -m spacy download en_core_web_sm
 
-# Set port from Railway environment variable
+# Start server on Railway dynamic port
 ENV PORT=$PORT
-
-# Start the app
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "$PORT"]
