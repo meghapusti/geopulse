@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+
   server: {
     port: 5173,
     proxy: {
@@ -12,14 +13,18 @@ export default defineConfig({
       },
     },
   },
-  optimizeDeps: {
-    exclude: ['three'],
-  },
+
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    sourcemap: false,
     rollupOptions: {
-      external: [],
+      output: {
+        manualChunks: {
+          'three-vendor': ['three', 'globe.gl'],
+          'chart-vendor': ['recharts'],
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+        },
+      },
     },
   },
 })
