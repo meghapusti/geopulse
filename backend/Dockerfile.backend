@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir \
     --index-url https://download.pytorch.org/whl/cpu
 
 # Copy backend folder
-COPY . /app/
+COPY backend/ /app/
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
