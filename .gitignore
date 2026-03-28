@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Data (too large for git — use DVC or just local)
+data/raw/
+data/processed/
+data/cache/
+data/models/
+*.pkl
+*.joblib
+*.pt
+*.bin
+*.onnx
+
+# Model weights (keep only in data/models, track with DVC)
+backend/app/models/weights/*.bin
+backend/app/models/weights/*.pt
+backend/app/models/weights/*.onnx
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Logs
+*.log
+logs/
+
+# Railway / infra secrets
+infra/railway/*.json

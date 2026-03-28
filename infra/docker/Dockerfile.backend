@@ -1,0 +1,26 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# System deps for psycopg2, lxml, hdbscan
+RUN apt-get update && apt-get install -y \
+    gcc g++ \
+    libpq-dev \
+    libxml2-dev libxslt-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PyTorch CPU before everything else (avoids CUDA pulling in)
+RUN pip install --no-cache-dir \
+    torch==2.3.0 \
+    --index-url https://download.pytorch.org/whl/cpu
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Download spaCy model
+RUN python -m spacy download en_core_web_sm
+
+COPY . .
+
+EXPOSE 8000
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,169 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design tokens ──────────────────────────────────────────── */
+:root {
+  color-scheme: dark;
+
+  /* Backgrounds */
+  --bg-base:     #030712;   /* gray-950 */
+  --bg-surface:  #0f172a;   /* gray-900 */
+  --bg-elevated: #1e293b;   /* gray-800 */
+  --bg-overlay:  rgba(15,23,42,0.92);
+
+  /* Text */
+  --text-primary:   #f8fafc;   /* slate-50  */
+  --text-secondary: #94a3b8;   /* slate-400 */
+  --text-muted:     #475569;   /* slate-600 */
+
+  /* Borders */
+  --border:       rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.14);
+
+  /* Tension colours */
+  --tension-low:      #1D9E75;
+  --tension-elevated: #EF9F27;
+  --tension-high:     #D85A30;
+  --tension-critical: #E24B4A;
+
+  /* Signal colours */
+  --bullish:  #1D9E75;
+  --bearish:  #E24B4A;
+  --neutral:  #64748b;
+
+  /* Sidebar */
+  --sidebar-width: 340px;
+}
+
+/* ── Reset ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0; padding: 0;
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 4px; height: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #334155; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+/* ── Canvas (globe) ─────────────────────────────────────────── */
+canvas { outline: none; display: block; }
+
+/* ── Typography utilities ───────────────────────────────────── */
+.text-muted    { color: var(--text-muted); }
+.text-secondary { color: var(--text-secondary); }
+.tabular       { font-variant-numeric: tabular-nums; }
+.label-xs {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Badge variants ─────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+.badge-bullish  { color: var(--bullish);  background: rgba(29,158,117,0.12); border-color: rgba(29,158,117,0.3);  }
+.badge-bearish  { color: var(--bearish);  background: rgba(226,75,74,0.12);  border-color: rgba(226,75,74,0.3);   }
+.badge-up       { color: var(--tension-elevated); background: rgba(239,159,39,0.12); border-color: rgba(239,159,39,0.3); }
+.badge-neutral  { color: var(--neutral);  background: rgba(100,116,139,0.12); border-color: rgba(100,116,139,0.3); }
+
+/* ── Tension colour utilities ───────────────────────────────── */
+.tension-low      { color: var(--tension-low); }
+.tension-medium   { color: var(--tension-elevated); }
+.tension-high     { color: var(--tension-critical); }
+
+/* ── Panel / card base ──────────────────────────────────────── */
+.panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.panel-elevated {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+/* ── Animations ─────────────────────────────────────────────── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+.animate-fade-in      { animation: fadeIn 0.2s ease-out; }
+.animate-slide-in-right { animation: slideInRight 0.25s cubic-bezier(0.16,1,0.3,1); }
+
+/* ── Recharts overrides ─────────────────────────────────────── */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+}
+.recharts-cartesian-grid line { stroke: var(--border) !important; }
+
+/* ── Range input ────────────────────────────────────────────── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bg-elevated);
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* ── Button base ────────────────────────────────────────────── */
+button { cursor: pointer; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Focus ring ─────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--tension-low);
+  outline-offset: 2px;
+}
