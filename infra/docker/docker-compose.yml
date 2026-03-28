@@ -28,8 +28,8 @@ services:
 
   backend:
     build:
-      context: ../backend
-      dockerfile: ../infra/docker/Dockerfile.backend
+      context: ../../backend
+      dockerfile: Dockerfile.backend
     ports:
       - "8000:8000"
     environment:
@@ -38,8 +38,8 @@ services:
       REDIS_URL: redis://redis:6379/0
       APP_ENV: development
     volumes:
-      - ../backend:/app
-      - ../data:/data
+      - ../../backend:/app
+      - ../../data:/data
     depends_on:
       postgres:
         condition: service_healthy

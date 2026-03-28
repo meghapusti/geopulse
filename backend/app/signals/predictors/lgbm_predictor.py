@@ -103,7 +103,9 @@ class LGBMPredictor:
             "global_tension_std": float(np.std(tensions)) if tensions else 0.0,
             "n_high_tension_regions": sum(1 for t in tensions if t > 60),
             "global_stress_delta_24h": float(
-                np.mean([s.tension_delta_24h for s in signals if s.tension_delta_24h is not None])
+                np.nan_to_num(
+                    np.mean([s.tension_delta_24h for s in signals if s.tension_delta_24h is not None])
+                )
             ) if signals else 0.0,
         }
 

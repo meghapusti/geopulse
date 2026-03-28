@@ -12,7 +12,7 @@
  * Click a country marker → sets selectedRegion in Zustand store
  * which triggers the RegionPanel to open.
  */
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { globeApi, type GlobeDataPoint } from '../../services/api'
 import { useAppStore } from '../../store/appStore'
@@ -25,14 +25,14 @@ function tensionToColor(tension: number): string {
   return '#E24B4A'                      // red — critical
 }
 
-// tension 0–100 → ring radius (bigger = more prominent)
+// tension 0–100 → point radius
 function tensionToRadius(tension: number): number {
-  return 0.4 + (tension / 100) * 1.8
+  return 0.3 + (tension / 100) * 1.2
 }
 
-// tension 0–100 → altitude (taller spike = more prominent)
+// tension 0–100 → altitude
 function tensionToAltitude(tension: number): number {
-  return 0.01 + (tension / 100) * 0.25
+  return 0.01 + (tension / 100) * 0.2
 }
 
 export function GeoGlobe() {
@@ -44,7 +44,7 @@ export function GeoGlobe() {
   const { data, isLoading } = useQuery({
     queryKey: ['globe'],
     queryFn: globeApi.getData,
-    refetchInterval: 5 * 60 * 1000,  // refresh every 5 minutes
+    refetchInterval: 5 * 60 * 1000,
     staleTime: 4 * 60 * 1000,
   })
 
@@ -52,52 +52,32 @@ export function GeoGlobe() {
   useEffect(() => {
     if (!containerRef.current) return
 
-    // Dynamic import to avoid SSR issues and keep initial bundle small
     import('globe.gl').then(({ default: Globe }) => {
-      const globe = Globe()(containerRef.current!)
+      if (!containerRef.current) return
+      const globe = new (Globe as any)()(containerRef.current)
 
       globe
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
         .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
-        .showAtmosphere(true)
-        .atmosphereColor('#1a3a5c')
-        .atmosphereAltitude(0.15)
-        // Hex bin / ring layer for tension markers
+        .showAtmosphere(false)
+        // Native WebGL points — much faster than htmlElementsData
+        .pointsData([])
+        .pointLat((d: any) => d.lat)
+        .pointLng((d: any) => d.lon)
+        .pointColor((d: any) => tensionToColor(d.tension_index))
+        .pointAltitude((d: any) => tensionToAltitude(d.tension_index))
+        .pointRadius((d: any) => tensionToRadius(d.tension_index))
+        .pointsMerge(false)
+        .onPointClick((d: any) => setSelectedRegion(d.region_code))
+        .onPointHover((d: any) => setHoveredRegion(d ? d.region_code : null))
+        // Rings only for high-tension regions
         .ringsData([])
-        .ringColor(() => '#ffffff')
-        .ringMaxRadius(3)
-        .ringPropagationSpeed(2)
-        .ringRepeatPeriod(1200)
-        // Custom HTML markers per point
-        .htmlElementsData([])
-        .htmlElement((d: any) => {
-          const el = document.createElement('div')
-          el.style.cssText = `
-            width: ${6 + d.tension_index * 0.14}px;
-            height: ${6 + d.tension_index * 0.14}px;
-            border-radius: 50%;
-            background: ${tensionToColor(d.tension_index)};
-            opacity: 0.85;
-            cursor: pointer;
-            box-shadow: 0 0 ${d.tension_index * 0.2}px ${tensionToColor(d.tension_index)};
-            transition: transform 0.15s;
-          `
-          el.addEventListener('mouseenter', () => {
-            el.style.transform = 'scale(1.6)'
-            setHoveredRegion(d.region_code)
-          })
-          el.addEventListener('mouseleave', () => {
-            el.style.transform = 'scale(1)'
-            setHoveredRegion(null)
-          })
-          el.addEventListener('click', () => {
-            setSelectedRegion(d.region_code)
-          })
-          return el
-        })
-        .htmlLat((d: any) => d.lat)
-        .htmlLng((d: any) => d.lon)
-        .htmlAltitude(0.01)
+        .ringColor((d: any) => tensionToColor(d.tension_index))
+        .ringLat((d: any) => d.lat)
+        .ringLng((d: any) => d.lon)
+        .ringMaxRadius(2)
+        .ringPropagationSpeed(1)
+        .ringRepeatPeriod(2000)
 
       // Auto-rotate slowly
       globe.controls().autoRotate = true
@@ -115,7 +95,7 @@ export function GeoGlobe() {
           globe.height(containerRef.current.clientHeight)
         }
       })
-      observer.observe(containerRef.current)
+      observer.observe(containerRef.current!)
 
       return () => observer.disconnect()
     })
@@ -128,16 +108,12 @@ export function GeoGlobe() {
     setGlobePoints(data.points)
     setGlobalTensionAvg(data.global_tension_avg)
 
-    globeRef.current.htmlElementsData(data.points)
+    // Update native WebGL points
+    globeRef.current.pointsData(data.points)
 
-    // Add pulse rings for high-tension regions
-    const highTensionPoints = data.points.filter(p => p.tension_index > 60)
+    // Rings only for high-tension regions
+    const highTensionPoints = data.points.filter((p: GlobeDataPoint) => p.tension_index > 60)
     globeRef.current.ringsData(highTensionPoints)
-    globeRef.current.ringColor((d: GlobeDataPoint) => tensionToColor(d.tension_index))
-    globeRef.current.ringLat((d: GlobeDataPoint) => d.lat)
-    globeRef.current.ringLng((d: GlobeDataPoint) => d.lon)
-    globeRef.current.ringMaxRadius((d: GlobeDataPoint) => tensionToRadius(d.tension_index))
-    globeRef.current.ringAltitude((d: GlobeDataPoint) => tensionToAltitude(d.tension_index))
 
   }, [data, setGlobePoints, setGlobalTensionAvg])
 
